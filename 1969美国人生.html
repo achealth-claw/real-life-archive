@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1969 · 美国人生</title>
+<style>
+  :root{
+    --bg:#f1ead9; --card:#fffcf4; --ink:#3b3226; --sub:#8a7d68;
+    --red:#9e3d32; --line:#ddd0b8; --green:#2e7d5b; --blue:#3a5f8a; --gold:#a07c1c;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{background:var(--bg); color:var(--ink); font-family:"Songti SC","Noto Serif SC","STSong",serif;}
+  #app{max-width:600px; margin:0 auto; padding:14px 14px 40px;}
+  header.top{text-align:center; padding:20px 0 8px;}
+  header.top h1{font-size:25px; letter-spacing:2px; color:var(--red); font-weight:700;}
+  header.top .tag{font-size:12px; color:var(--sub); margin-top:6px; line-height:1.7;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 15px; margin-top:12px; box-shadow:0 1px 4px rgba(60,45,20,.06);}
+  .card h2{font-size:16px; margin-bottom:8px;}
+  .card h2 .yb{display:inline-block; background:var(--red); color:#fff; font-size:12px; border-radius:999px; padding:2px 10px; margin-right:8px; vertical-align:2px;}
+  .desc{font-size:13.5px; line-height:1.85;}
+  .desc b{color:var(--red);}
+  .opt{display:block; width:100%; text-align:left; background:#fff; border:1px solid var(--line); border-radius:8px;
+       padding:11px 13px; margin-top:9px; font-size:13.5px; line-height:1.6; color:var(--ink); cursor:pointer; font-family:inherit; transition:all .12s;}
+  .opt:hover{background:#faf0dc; border-color:var(--red); transform:translateY(-1px);}
+  .opt .o{font-weight:700;}
+  .opt .hint{display:block; font-size:11.5px; color:var(--sub); margin-top:2px;}
+  .opt .pv{display:block; font-size:12px; color:var(--blue); margin-top:3px; font-weight:700;}
+  .btn{display:inline-block; border:none; border-radius:8px; padding:11px 18px; font-size:14px; cursor:pointer; font-family:inherit; margin:4px 4px 0 0;}
+  .btn-primary{background:var(--red); color:#fff;}
+  .btn-ghost{background:#fff; border:1px solid var(--line); color:var(--ink);}
+  .center{text-align:center;}
+  .note{font-size:11px; color:var(--sub); line-height:1.7; margin-top:8px;}
+  /* 历史环境条 */
+  .era{font-size:12px; color:var(--ink); background:#f6ecd6; border-left:3px solid var(--gold); padding:7px 10px; margin:10px 0; line-height:1.8; border-radius:0 6px 6px 0;}
+  .era b{color:var(--gold);}
+  .era .v{display:inline-block; background:#fff; border:1px solid var(--line); border-radius:4px; padding:0 6px; margin:2px 3px 0 0; font-size:11.5px;}
+  /* 年轮 */
+  .log{font-size:12.5px; line-height:1.8;}
+  .log .row{display:flex; gap:8px; padding:2px 0; border-bottom:1px dashed #efe3cc;}
+  .log .age{color:var(--sub); min-width:52px; flex:none;}
+  .log .ev{color:var(--blue);} .log .ev.warn{color:var(--red);} .log .ev.good{color:var(--green);}
+  /* 结算 */
+  .big-num{font-size:32px; font-weight:800; color:var(--red); text-align:center; margin:10px 0 2px;}
+  .big-num small{font-size:13px; font-weight:400;}
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;}
+  .stat{background:#faf3e4; border:1px solid var(--line); border-radius:8px; padding:10px 12px;}
+  .stat .k{font-size:11px; color:var(--sub);}
+  .stat .v{font-size:16px; font-weight:700; margin-top:2px;}
+  .stat .v small{font-size:11px; font-weight:400; color:var(--sub);}
+  .cf{margin-top:10px; border-top:1px dashed var(--line); padding-top:8px;}
+  .cf .cft{font-size:13px; font-weight:700; margin:6px 0 2px;}
+  .cf .cfr{font-size:12.5px; line-height:1.8;}
+  .cf .cfr .up{color:var(--green); font-weight:700;} .cf .cfr .dn{color:var(--red); font-weight:700;}
+  canvas{width:100%; height:180px; display:block; margin-top:10px; background:#fffdf7; border:1px solid var(--line); border-radius:8px;}
+  .qsel{display:grid; grid-template-columns:repeat(5,1fr); gap:6px; margin-top:10px;}
+  .qsel .qc{border:1px solid var(--line); background:#fff; border-radius:8px; padding:8px 4px; text-align:center; cursor:pointer; font-size:11px; font-family:inherit; color:var(--ink); line-height:1.5;}
+  .qsel .qc:hover{border-color:var(--red);}
+  .qsel .qc .qn{font-weight:700; color:var(--red); font-size:12px;}
+  .foot{text-align:center; font-size:11px; color:var(--sub); margin-top:16px; line-height:1.8;}
+  .toast{position:fixed; left:50%; bottom:64px; transform:translateX(-50%); max-width:88%;
+         background:rgba(59,50,38,.95); color:#fff; font-size:13px; padding:10px 18px; border-radius:10px;
+         z-index:99; font-family:inherit; box-shadow:0 4px 14px rgba(0,0,0,.25); animation:toastIn .25s ease;}
+  .toast.warn{background:rgba(158,61,50,.95);}
+  .toast.good{background:rgba(46,125,91,.95);}
+  @keyframes toastIn{from{opacity:0; transform:translateX(-50%) translateY(12px);} to{opacity:1; transform:translateX(-50%) translateY(0);}}
+  .fate-list{margin-top:10px;}
+  .fate-list .fl{font-size:12.5px; line-height:1.9; padding-left:8px; border-left:2px solid var(--line); margin-top:4px;}
+  .fate-list .fl.warn{border-color:var(--red);} .fate-list .fl.good{border-color:var(--green);} .fate-list .fl .ya{color:var(--sub); font-size:11px;}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <h1>1969 · 美国人生</h1>
+    <div class="tag">回到 1969 年的美国，从真实起点出发，在真实历史里做选择<br>通胀 · 房价 · 股市 · 利率 · 失业，全部是真实数据</div>
+  </header>
+  <main id="stage"></main>
+  <div class="foot">历史参数：FRED 真实数据（CPI-U / 标普500 / FHFA房价 / 30年房贷利率 / 失业率）<br>对照：PSID 1969→2023 真实家庭（同起点等分）｜ 金额为当年美元，结算折算 2024<br><a href="起点与终点.html" style="color:var(--blue);">← 返回《起点与终点》</a> ｜ <a href="真实人生档案.html" style="color:var(--blue);">真实人生档案</a></div>
+</div>
+<script>
+const HIST = {"1969": {"inf": 5.46, "stock": -9.28, "house": 6.96, "rate": 7.9, "unemp": 3.5}, "1970": {"inf": 5.72, "stock": -8.82, "house": 7.22, "rate": 8.4, "unemp": 5.0}, "1971": {"inf": 4.38, "stock": 15.34, "house": 5.88, "rate": 7.54, "unemp": 6.0}, "1972": {"inf": 3.21, "stock": 19.25, "house": 4.71, "rate": 7.38, "unemp": 5.6}, "1973": {"inf": 6.22, "stock": -10.28, "house": 7.72, "rate": 8.04, "unemp": 4.9}, "1974": {"inf": 11.04, "stock": -31.03, "house": 12.54, "rate": 9.19, "unemp": 5.6}, "1975": {"inf": 9.13, "stock": 30.43, "house": 10.63, "rate": 9.05, "unemp": 8.5}, "1976": {"inf": 5.76, "stock": 18.74, "house": 7.98, "rate": 8.87, "unemp": 7.7}, "1977": {"inf": 6.5, "stock": -3.99, "house": 14.73, "rate": 8.85, "unemp": 7.1}, "1978": {"inf": 7.59, "stock": 7.0, "house": 13.3, "rate": 9.64, "unemp": 6.1}, "1979": {"inf": 11.35, "stock": 12.58, "house": 12.35, "rate": 11.2, "unemp": 5.9}, "1980": {"inf": 13.5, "stock": 29.75, "house": 6.4, "rate": 13.74, "unemp": 7.2}, "1981": {"inf": 10.32, "stock": -5.52, "house": 2.81, "rate": 16.64, "unemp": 7.6}, "1982": {"inf": 6.16, "stock": 13.02, "house": 3.79, "rate": 16.04, "unemp": 9.7}, "1983": {"inf": 3.21, "stock": 23.58, "house": 5.37, "rate": 13.24, "unemp": 9.6}, "1984": {"inf": 4.32, "stock": 1.53, "house": 4.68, "rate": 13.88, "unemp": 7.5}, "1985": {"inf": 3.56, "stock": 21.27, "house": 5.71, "rate": 12.43, "unemp": 7.2}, "1986": {"inf": 1.95, "stock": 25.14, "house": 7.3, "rate": 10.19, "unemp": 7.0}, "1987": {"inf": 3.56, "stock": 4.27, "house": 5.44, "rate": 10.21, "unemp": 6.2}, "1988": {"inf": 4.14, "stock": 10.19, "house": 5.62, "rate": 10.34, "unemp": 5.5}, "1989": {"inf": 4.73, "stock": 25.51, "house": 5.61, "rate": 10.32, "unemp": 5.3}, "1990": {"inf": 5.49, "stock": -7.37, "house": 1.21, "rate": 10.13, "unemp": 5.6}, "1991": {"inf": 4.21, "stock": 25.23, "house": 3.12, "rate": 9.25, "unemp": 6.8}, "1992": {"inf": 3.01, "stock": 11.16, "house": 2.41, "rate": 8.39, "unemp": 7.5}, "1993": {"inf": 2.99, "stock": 12.28, "house": 2.66, "rate": 7.31, "unemp": 6.9}, "1994": {"inf": 2.56, "stock": 0.08, "house": 1.54, "rate": 8.38, "unemp": 6.1}, "1995": {"inf": 2.83, "stock": 28.56, "house": 4.56, "rate": 7.93, "unemp": 5.6}, "1996": {"inf": 2.95, "stock": 22.54, "house": 2.52, "rate": 7.81, "unemp": 5.4}, "1997": {"inf": 2.29, "stock": 31.65, "house": 4.39, "rate": 7.6, "unemp": 4.9}, "1998": {"inf": 1.56, "stock": 12.41, "house": 5.07, "rate": 6.94, "unemp": 4.5}, "1999": {"inf": 2.21, "stock": 15.3, "house": 4.91, "rate": 7.44, "unemp": 4.2}, "2000": {"inf": 3.36, "stock": 5.52, "house": 7.08, "rate": 8.05, "unemp": 4.0}, "2001": {"inf": 2.79, "stock": -9.51, "house": 7.12, "rate": 6.97, "unemp": 4.7}, "2002": {"inf": 1.64, "stock": -14.99, "house": 6.7, "rate": 6.54, "unemp": 5.8}, "2003": {"inf": 2.28, "stock": 22.52, "house": 6.97, "rate": 5.83, "unemp": 6.0}, "2004": {"inf": 2.66, "stock": 16.05, "house": 10.34, "rate": 5.84, "unemp": 5.5}, "2005": {"inf": 3.39, "stock": 12.02, "house": 11.24, "rate": 5.87, "unemp": 5.1}, "2006": {"inf": 3.23, "stock": 18.89, "house": 4.53, "rate": 6.41, "unemp": 4.6}, "2007": {"inf": 2.83, "stock": 13.64, "house": -1.14, "rate": 6.34, "unemp": 4.6}, "2008": {"inf": 3.86, "stock": -40.14, "house": -7.16, "rate": 6.03, "unemp": 5.8}, "2009": {"inf": -0.33, "stock": 25.64, "house": -5.19, "rate": 5.04, "unemp": 9.3}, "2010": {"inf": 1.63, "stock": 9.94, "house": -1.85, "rate": 4.69, "unemp": 9.6}, "2011": {"inf": 3.12, "stock": -2.1, "house": -3.34, "rate": 4.45, "unemp": 8.9}, "2012": {"inf": 2.09, "stock": 14.71, "house": 0.59, "rate": 3.66, "unemp": 8.1}, "2013": {"inf": 1.48, "stock": 23.44, "house": 4.28, "rate": 3.98, "unemp": 7.4}, "2014": {"inf": 1.59, "stock": 9.02, "house": 5.09, "rate": 4.17, "unemp": 6.2}, "2015": {"inf": 0.13, "stock": -1.91, "house": 5.02, "rate": 3.85, "unemp": 5.3}, "2016": {"inf": 1.27, "stock": 6.43, "house": 5.44, "rate": 3.65, "unemp": 4.9}, "2017": {"inf": 2.12, "stock": 17.81, "house": 5.4, "rate": 3.99, "unemp": 4.4}, "2018": {"inf": 2.45, "stock": -0.54, "house": 4.87, "rate": 4.54, "unemp": 3.9}, "2019": {"inf": 1.83, "stock": 11.97, "house": 5.05, "rate": 3.94, "unemp": 3.7}, "2020": {"inf": 1.25, "stock": 4.28, "house": 6.27, "rate": 3.11, "unemp": 8.1}, "2021": {"inf": 4.67, "stock": 25.37, "house": 18.01, "rate": 2.96, "unemp": 5.4}, "2022": {"inf": 7.97, "stock": -10.0, "house": 10.79, "rate": 5.34, "unemp": 3.7}, "2023": {"inf": 4.14, "stock": 8.27, "house": 5.23, "rate": 6.81, "unemp": 3.6}};
+const QUANT = [{"med": 2100, "med23": 80000, "dist": [-63000, -21500, -10000, -9400, -8500, -5800, -5000, -4800, -1850, -1000, -210, -165, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 49, 240, 500, 500, 900, 1200, 1300, 1800, 2774, 2775, 2800, 3003, 4087, 5400, 7800, 9000, 10000, 10000, 10465, 11000, 11000, 11200, 11500, 13043, 15000, 15000, 17000, 17400, 18000, 19010, 20000, 20000, 21600, 22000, 25000, 25300, 25500, 31000, 32585, 34000, 36000, 37000, 38000, 40000, 40000, 47000, 56500, 58000, 62125, 63800, 69945, 70000, 70000, 75000, 80000, 82000, 85000, 85600, 88000, 95000, 95000, 105200, 107000, 107500, 108800, 112000, 113500, 115000, 118700, 119000, 122200, 122873, 123500, 125000, 125000, 129500, 132000, 133500, 134000, 150000, 150200, 165000, 176000, 180030, 195000, 195000, 195000, 197000, 197500, 198500, 201750, 202000, 204000, 204190, 219900, 232000, 240000, 248000, 250100, 250808, 258300, 260000, 260000, 273000, 277500, 302000, 308900, 315000, 335500, 345000, 363000, 365000, 371500, 395000, 421000, 429500, 446000, 485000, 489200, 491500, 545000, 550000, 565000, 632000, 730900, 805000, 815220, 935000, 1084500, 1250000, 1285000, 1480000, 1680000, 2158000, 2455000, 3145000, 6373826]}, {"med": 4000, "med23": 74900, "dist": [-143980, -138440, -129900, -43300, -34900, -27000, -21320, -21100, -20000, -17000, -10000, -10000, -10000, -9800, -9000, -8150, -7868, -3920, -2603, -2500, -2200, -2200, -2000, -1970, -125, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 20, 100, 100, 100, 400, 500, 500, 500, 604, 1200, 1400, 1500, 1600, 1648, 1700, 2000, 2100, 3500, 4000, 4000, 4500, 5000, 5000, 5000, 5100, 5200, 5300, 6000, 6000, 6700, 7000, 10000, 10000, 11500, 11800, 15500, 15712, 16000, 16000, 16080, 16900, 17010, 17700, 18000, 20000, 20000, 20300, 20825, 21000, 21500, 24000, 24850, 25000, 26000, 28300, 29797, 30300, 31500, 34000, 35000, 35000, 37900, 40500, 42700, 49200, 49500, 50000, 54000, 60000, 60400, 61991, 66000, 70000, 72000, 72500, 74900, 75000, 75400, 80000, 85000, 86000, 87000, 89900, 90000, 90000, 91000, 101400, 102000, 103000, 103820, 106000, 109000, 109403, 113000, 113161, 113500, 115000, 120147, 120332, 122000, 122500, 122800, 123500, 125000, 125000, 125000, 126000, 126000, 127000, 127500, 130130, 136000, 136000, 140000, 140100, 141000, 143000, 147000, 153517, 158400, 160500, 161450, 163400, 169000, 170000, 170000, 171900, 176000, 182000, 184500, 186000, 190000, 190977, 200300, 201500, 203000, 205000, 205000, 205717, 211000, 211900, 220345, 229000, 229400, 229800, 233600, 242300, 245000, 250500, 259000, 260000, 260400, 263000, 266000, 274700, 281500, 282000, 285500, 295000, 296000, 300000, 303500, 315000, 318300, 331000, 341000, 369000, 378800, 382000, 395000, 400000, 440000, 445500, 497000, 525800, 526020, 532000, 635500, 662500, 710000, 726000, 745400, 772000, 865000, 879915, 930000, 931000, 1148000, 1198000, 1211000, 1350000, 1425000, 1469960, 1670000, 1672000, 1809300, 1880900, 2079791, 2694000, 3354000, 3741000, 12340083, 14425000]}, {"med": 6458, "med23": 130000, "dist": [-306000, -177400, -113500, -104400, -102400, -80000, -71000, -69000, -31000, -30175, -20600, -20300, -15200, -15000, -13850, -9000, -4999, -3000, -2950, -2600, -2500, -2500, -2100, -1018, -250, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 100, 100, 200, 210, 500, 500, 575, 600, 800, 845, 1000, 1190, 1300, 1500, 3000, 3300, 3900, 4000, 4000, 4120, 5000, 5000, 5250, 5600, 6000, 6000, 6500, 8600, 9000, 9962, 10000, 10000, 11510, 12000, 12200, 13200, 14800, 15000, 15000, 15000, 15000, 15050, 15400, 16800, 18000, 18300, 18900, 19000, 20000, 20000, 20200, 22000, 22300, 24400, 25000, 25700, 27000, 27782, 28800, 30000, 32000, 35000, 36000, 37850, 38500, 39200, 44775, 46000, 48000, 50000, 51000, 51500, 51500, 52000, 53850, 54752, 55500, 55800, 56000, 56821, 60000, 62991, 63500, 64000, 66000, 67000, 70000, 70000, 72400, 75500, 77000, 78000, 83100, 86140, 90967, 91000, 92000, 93627, 94300, 98000, 98500, 98900, 103500, 104100, 105000, 105000, 109500, 115500, 118000, 120500, 121280, 123000, 125800, 130000, 131000, 135150, 136500, 145000, 147800, 148000, 148000, 149000, 149700, 150200, 160000, 161000, 161300, 170000, 170500, 175000, 175000, 178500, 182000, 182000, 183000, 185846, 188900, 192400, 195500, 198000, 199500, 200000, 200500, 201800, 202000, 204100, 209500, 215000, 220000, 220000, 220000, 221700, 223935, 232000, 240000, 240000, 248353, 249650, 249900, 254000, 255000, 255600, 256000, 256100, 259500, 260000, 262789, 270000, 274300, 275900, 276500, 277000, 280000, 291500, 299000, 301600, 303000, 304000, 308000, 312000, 315000, 317000, 318000, 319500, 326500, 327000, 330000, 333000, 335300, 350000, 351900, 361500, 382000, 391500, 395000, 408000, 415000, 425008, 427900, 430500, 438000, 446000, 452000, 453000, 462000, 466500, 474000, 499000, 510000, 515000, 532000, 547000, 555000, 565000, 569000, 570000, 575000, 583000, 586400, 589075, 611000, 613000, 629000, 640000, 644770, 653000, 670000, 678500, 705000, 719980, 756500, 760000, 809000, 820000, 840000, 860000, 872000, 875000, 940000, 945000, 960000, 966000, 1104000, 1135476, 1169000, 1170000, 1230000, 1243600, 1300000, 1314230, 1320000, 1361000, 1413000, 1445100, 1485000, 1500800, 1509000, 1562000, 1567000, 1670000, 1743500, 1805700, 1865000, 2074000, 2320000, 2420000, 2560000, 2660000, 3070000, 3153150, 4600000, 4835000, 7055000, 7463000, 9270000, 12138500, 21268000]}, {"med": 9381, "med23": 253400, "dist": [-282500, -210500, -139000, -118500, -82950, -81500, -71400, -56000, -48500, -45600, -42000, -40000, -29984, -19480, -15400, -9742, -8000, -7000, -4000, -3300, -3000, -2000, -1955, -1750, -1600, -1554, -1000, -800, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 50, 80, 300, 400, 500, 1000, 1700, 1800, 1900, 2000, 2000, 2600, 3000, 3000, 3500, 3900, 4000, 4000, 4000, 4000, 4250, 4579, 5000, 5000, 5000, 6000, 6500, 8110, 8750, 11100, 15000, 15900, 19120, 20000, 20000, 21000, 21031, 21468, 22500, 25000, 26000, 30400, 32000, 33000, 33600, 40000, 40800, 41590, 43350, 50000, 50050, 50400, 52200, 52500, 55500, 55500, 57850, 62000, 62900, 63500, 64400, 65000, 65500, 65500, 66000, 67500, 70000, 72000, 72500, 73000, 73500, 80300, 80358, 83000, 85000, 87000, 90500, 97000, 98500, 99500, 100000, 101000, 103000, 106000, 106001, 107000, 109200, 110000, 110000, 110300, 112600, 114000, 117420, 118000, 118000, 121500, 123000, 124000, 125000, 126000, 126000, 130000, 138000, 142700, 143500, 144000, 145200, 146850, 147241, 148400, 149500, 150000, 155000, 158000, 158500, 159000, 170500, 171000, 172141, 177550, 180000, 181060, 182000, 183400, 185000, 185000, 191000, 193500, 197400, 202000, 202000, 203000, 207000, 207000, 210000, 213000, 215500, 220000, 220500, 226000, 226991, 228000, 228000, 230000, 234500, 242000, 244500, 253400, 254000, 265000, 268373, 270000, 274000, 275000, 275000, 278000, 280000, 283300, 284000, 285423, 287000, 289000, 299114, 301000, 313000, 315800, 317304, 328000, 332100, 335000, 336000, 340000, 341000, 342000, 343000, 344800, 350086, 359000, 361500, 364000, 365000, 368000, 377000, 379000, 380000, 391500, 395600, 399000, 400000, 400000, 401000, 402000, 406000, 408000, 410000, 418000, 420000, 420400, 426075, 433000, 433000, 435000, 445000, 445000, 446000, 450000, 465000, 467000, 475000, 475000, 484000, 490000, 490000, 495000, 499500, 508000, 508100, 512000, 518000, 520000, 526000, 531500, 533000, 550000, 552000, 566041, 567000, 570000, 575000, 580000, 581000, 588000, 590000, 597000, 600200, 606000, 608200, 625730, 632000, 634000, 640500, 655000, 666000, 667600, 671045, 674400, 700000, 707000, 715200, 734000, 746035, 746500, 754000, 759700, 760400, 762000, 763000, 765000, 765000, 765000, 801900, 805000, 812523, 816000, 825000, 885000, 890000, 922000, 928000, 935000, 967783, 999000, 1011828, 1020000, 1030000, 1032000, 1033000, 1072000, 1100000, 1122000, 1122450, 1128200, 1175000, 1182000, 1195000, 1195000, 1208636, 1218000, 1258000, 1260000, 1266000, 1289500, 1314000, 1330000, 1336965, 1341000, 1350000, 1395000, 1400000, 1403000, 1437200, 1440000, 1454000, 1480075, 1514500, 1580800, 1635000, 1670000, 1696200, 1778500, 1839000, 1848000, 1920000, 1970000, 1986000, 2006000, 2070000, 2198000, 2274670, 2295750, 2355000, 2475000, 2580000, 2596000, 2777700, 2817500, 2818000, 3021000, 3090000, 3293000, 3314500, 3369065, 3520000, 3600000, 3809000, 3981000, 4125000, 4807500, 5088000, 5300000]}, {"med": 15168, "med23": 559200, "dist": [-108213, -58500, -37500, -32000, -31400, -21500, -15000, -11500, -10000, -10000, -9600, -8063, -4431, -4000, -2599, 0, 0, 0, 0, 0, 0, 0, 0, 11, 45, 90, 200, 220, 234, 1000, 1400, 2200, 2250, 3000, 3000, 3500, 3600, 5005, 5150, 6000, 6000, 6300, 7350, 8000, 8000, 9000, 9000, 9000, 10000, 10100, 10300, 11000, 12750, 13000, 16000, 16000, 16800, 19000, 20500, 21668, 22000, 24000, 26432, 27575, 28000, 30800, 35000, 37200, 37500, 39000, 41200, 42250, 45000, 49000, 49100, 54300, 55000, 55000, 55500, 63000, 65000, 71100, 78600, 81000, 81600, 86697, 89025, 92700, 95000, 95150, 96500, 99800, 102019, 103000, 104000, 105500, 106000, 106600, 111795, 115000, 117040, 122520, 123000, 127000, 134000, 136500, 137288, 141000, 143000, 143500, 145000, 147000, 150000, 153000, 157500, 159000, 160000, 163000, 163080, 165500, 167000, 170900, 177300, 178000, 182300, 184700, 184815, 192000, 192100, 193000, 195000, 197000, 197000, 198000, 198500, 199000, 204500, 207000, 211000, 213000, 214000, 215000, 216000, 231000, 231000, 232900, 233800, 235000, 252900, 253000, 254000, 254000, 255050, 255858, 257000, 257500, 259800, 262600, 268000, 269000, 270000, 270000, 270000, 273000, 278000, 280999, 281500, 292000, 299000, 299700, 308000, 314320, 314500, 314500, 319500, 323000, 325000, 328200, 330000, 331000, 332000, 335000, 337600, 339000, 341409, 350000, 350000, 350000, 351000, 361500, 363000, 365800, 370000, 375000, 376000, 376000, 377520, 379200, 380000, 380000, 383000, 387000, 387000, 392000, 392233, 398000, 410000, 416000, 418000, 425000, 437000, 438000, 440000, 440000, 441000, 448000, 451000, 452900, 453000, 454723, 457000, 461000, 471348, 474000, 476808, 478546, 480000, 482000, 482137, 484000, 493000, 500735, 503000, 507000, 514000, 520000, 520000, 535000, 540000, 540000, 542000, 556500, 557500, 559200, 565000, 571000, 576000, 577000, 588000, 591000, 591000, 595000, 595000, 598500, 603000, 608000, 610000, 618000, 625000, 626000, 627000, 633000, 636800, 665000, 675000, 687000, 692400, 699000, 700000, 718000, 724926, 726000, 735000, 743000, 744000, 745000, 749000, 756500, 767500, 770000, 771540, 795000, 795000, 796000, 797547, 799000, 799800, 804000, 804000, 818000, 830000, 840000, 844000, 848000, 854631, 855000, 867000, 877500, 887000, 888944, 889000, 895974, 905000, 914000, 921000, 923000, 923000, 932000, 934000, 945000, 951800, 958000, 967000, 968600, 983000, 997483, 1000000, 1000000, 1005000, 1007000, 1012797, 1016620, 1020000, 1020000, 1027000, 1045000, 1055000, 1055000, 1063000, 1087000, 1090000, 1100150, 1109900, 1142400, 1160000, 1172753, 1175000, 1180103, 1187400, 1216700, 1223400, 1231000, 1242000, 1247000, 1257000, 1259000, 1275000, 1285000, 1295500, 1296000, 1342500, 1344000, 1350000, 1370000, 1372000, 1384000, 1390000, 1391000, 1400000, 1400000, 1402580, 1417800, 1419000, 1440000, 1466000, 1469000, 1505000, 1520000, 1533721, 1577000, 1581000, 1622270, 1626000, 1657000, 1662859, 1665000, 1667000, 1690000, 1745000, 1750000, 1756000, 1796000, 1820000, 1859000, 1871950, 1890000, 1894000, 1895000, 1911000, 1931900, 1955000, 1964000, 1967000, 1975000, 1979000, 1995000, 2005000, 2007000, 2061000, 2063500, 2098000, 2141000, 2191070, 2300000, 2325000, 2339000, 2351500, 2376200, 2385000, 2410000, 2429000, 2430000, 2494000, 2500000, 2537000, 2545000, 2641000, 2711000, 2720000, 2730000, 2734000, 2766700, 2844001, 2922000, 2926000, 2940000, 3013400, 3024464, 3027638, 3031000, 3148000, 3150000, 3164000, 3250000, 3267000, 3345000, 3370000, 3426000, 3535000, 3592000, 3602000, 3708500, 3760000, 3865000, 3905000, 4022000, 4040000, 4050000, 4050000, 4064470, 4100000, 4118000, 4279000, 4355000, 4380000, 4570000, 4778150, 4831000, 4907066, 5266250, 5360000, 5400000, 5710000, 5778000, 6005000, 6266000, 6431200, 6585000, 7009000, 7020008, 7205000, 7267000, 7520000, 7679000, 7835000, 8150000, 8465000, 8560000, 9100000, 9535000, 11195000, 11220000, 14180000, 14527000, 14846005, 18280000]}];
+const stage = document.getElementById("stage");
+const render = html => stage.innerHTML = html;
+const fmt = n => (n==null?"—":(n<0?"-":"")+"$"+Math.abs(Math.round(n)).toLocaleString("en-US"));
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
+const waitChoice = () => new Promise(res=>{
+  const bs = document.querySelectorAll(".opt[data-i]");
+  const done = e => { document.querySelectorAll(".opt").forEach(b=>b.disabled=true); res(parseInt(e.currentTarget.dataset.i,10)); };
+  bs.forEach(b=>b.addEventListener("click", done));
+});
+
+/* ====== 状态 ====== */
+let S = null;
+function newState(){
+  return {year:1969, age:22, q:0, edu:"高中", job:"蓝领",
+    cash:0, stock:0, house:0, loan:0, rate:0, house2:0, loan2:0, rate2:0,
+    married:false, kid:false, invest:"deposit", // deposit/balanced/aggressive
+    income:0, pressure:30, layoffLeft:0, events:[],
+    choiceSeq:[], hist:[]};
+}
+const JOB = {
+  "蓝领工人": {coef:0.9, grow:0.010, desc:"工厂/建筑/运输，体力换收入"},
+  "白领职员": {coef:1.0, grow:0.015, desc:"办公室/销售/行政"},
+  "专业/管理":{coef:1.15, grow:0.020, desc:"医生/律师/工程师/经理"},
+  "个体经营": {coef:0.8, grow:0.0, desc:"开店/小生意，大起大落"},
+};
+const EDU = {"高中毕业":1.0, "大学本科":1.35, "研究生":1.7};
+
+/* ====== 开局 ====== */
+async function screenSetup(){
+  const qs = QUANT.map((q,i)=>`
+    <button class="qc" onclick="startGame(${i})">
+      <div class="qn">起点 Q${i}</div>
+      <div>${["最低","次低","中间","次高","最高"][i]} 20%</div>
+      <div style="color:var(--sub);">1969 中位收入<br>${fmt(q.med)}</div>
+    </button>`).join("");
+  render(`
+    <div class="card">
+      <h2>第一步 · 你的 1969 起点</h2>
+      <div class="desc">你 22 岁，1969 年进入美国职场。你的家庭出身决定起薪——选一个真实起点（PSID 1969 收入五等分）。</div>
+      <div class="qsel">${qs}</div>
+      <div class="note">真实对照：1,620 个同起点家庭 54 年后的净资产中位数——${QUANT.map((q,i)=>`Q${i} ${fmt(q.med23)}`).join(" · ")}</div>
+    </div>`);
+}
+async function startGame(q){
+  S = newState();
+  S.q = q;
+  S.income = Math.max(QUANT[q].med, 3200); // 22岁劳动者起薪（1969最低工资兜底）
+  // 学历
+  render(`
+    <div class="card">
+      <h2>第二步 · 你的学历</h2>
+      <div class="desc">1969 年，25-34 岁美国人约 60% 高中毕业、15% 大学毕业。学历决定起薪与天花板。</div>
+      ${Object.entries(EDU).map(([k,v],i)=>`<button class="opt" data-i="${i}"><span class="o">${k}</span><span class="hint">起薪系数 ×${v}（1969 年大学溢价很高）</span></button>`).join("")}
+    </div>`);
+  const ei = await waitChoice();
+  S.edu = Object.keys(EDU)[ei];
+  // 职业
+  render(`
+    <div class="card">
+      <h2>第三步 · 你的职业</h2>
+      <div class="desc">1969 年的美国经济正在黄金期，但 1970s 的滞胀即将到来。</div>
+      ${Object.entries(JOB).map(([k,v],i)=>`<button class="opt" data-i="${i}"><span class="o">${k}</span><span class="hint">${v.desc} ｜ 实际涨薪 ${(v.grow*100).toFixed(1)}%/年</span></button>`).join("")}
+    </div>`);
+  const ji = await waitChoice();
+  S.job = Object.keys(JOB)[ji];
+  const mult = EDU[S.edu] * JOB[S.job].coef;
+  S.income = Math.round(S.income * mult);
+  await play();
+}
+
+/* ====== 历史环境 ====== */
+function eraHTML(y){
+  const h = HIST[y-1] || HIST[y];
+  return `<div class="era"><b>${y-1} 年（去年）· 美国：</b>
+    <span class="v">通胀 ${h.inf}%</span><span class="v">房价 ${h.house>0?"+":""}${h.house}%</span><span class="v">股市 ${h.stock>0?"+":""}${h.stock}%</span><span class="v">房贷 ${h.rate}%</span><span class="v">失业 ${h.unemp}%</span></div>`;
+}
+
+/* ====== 决策表 ====== */
+const DECISIONS = [
+  {y:1972, slot:"marry", title:"结婚吗？", text:"你 25 岁了。1970s 的美国家庭，双职工开始变多。",
+   opts:[{label:"结婚，两个人一起扛", hint:"家庭收入 ×1.6"},{label:"单身到老", hint:"支出低，但没人分担"}],
+   def:0, cond:s=>!s.married,
+   after:"1970s 起美国双职工家庭成为主流，两人赚钱的家庭积累明显更快。"},
+  {y:1974, slot:"kid", title:"要孩子吗？", text:"你 27 岁了。1970s 的美国家庭，平均两个孩子——但养孩子不便宜。",
+   opts:[{label:"要孩子", hint:"育儿支出增加（家庭支出的 86% 档）"},{label:"丁克，二人世界", hint:"支出更低，钱都留给自己"}],
+   def:0,
+   after:"1970s-80s 美国中产家庭普遍两个孩子；养娃成本在 2000s 后迅速上升。"},
+  {y:1975, slot:"house1", title:"买房吗？", text:"这几年物价涨得厉害，房价也在涨，但房贷利息不便宜。一套中位房约 {P}。",
+   opts:[{label:"买房，锁定利率上车", hint:"首付 20%，30 年固定利率"}, {label:"不买，存钱吃高利息", hint:"存款利率已经到 8-12%"}],
+   def:0, cond:s=>s.house===0,
+   after:"1970s 大通胀里，房价年涨 8-12%，早买房的人资产翻了数倍；2008 年又跌回去一部分。"},
+  {y:1979, slot:"invest79", title:"闲钱放哪？", text:"沃尔克上台收紧货币，利率飙到 11%+。存款利息很香，股票波动很大。",
+   opts:[{label:"存银行吃利息", hint:"利率 9-12%，稳"}, {label:"买股票", hint:"股息+长期看涨，但短期波动大"}],
+   def:0,
+   after:"1982 年起美股开启 20 年大牛市，存银行的人跑输了通胀+牛市。"},
+  {y:1981, slot:"upgrade", title:"1981：贷款利率高得离谱", text:"房贷利率到了前所未有的水平，改善住房意味着背上巨额利息。",
+   opts:[{label:"不换，守住现有", hint:"避开高利率"},{label:"咬牙换大房", hint:"利息极高，但房子会涨吗？"}],
+   def:0, cond:s=>s.house>0,
+   after:"1981 年 16.6% 是利率历史顶点，此后 40 年再没这么贵过。"},
+  {y:1987, slot:"invest87", title:"1987：黑色星期一", text:"10 月股市一天暴跌 22%。有人恐慌离场，有人说机会来了。",
+   opts:[{label:"趁恐慌入市", hint:"很多人说这是机会"},{label:"继续存银行", hint:"利率 8-10%，稳"}],
+   def:0,
+   after:"1987 崩盘后美股开启 90 年代长牛，标普 1990s 涨了近 10 倍。"},
+  {y:1995, slot:"invest95", title:"1995：互联网浪潮", text:"纳斯达克起飞，.com 公司满天飞，朋友都在谈股票。",
+   opts:[{label:"加仓股票", hint:"科技股很热"},{label:"保持稳健", hint:"不追热点"}],
+   def:0,
+   after:"1995-99 标普年涨 20%+；但 2000 年泡沫破裂，追高的人坐了过山车。"},
+  {y:2000, slot:"exit2000", title:"2000：互联网热潮的高点", text:"纳斯达克冲上 5000 点，你手里的科技股浮盈巨大，身边的人都说还能涨。",
+   opts:[{label:"止盈离场，落袋为安", hint:"不再冒险"},{label:"继续持有，相信新经济", hint:"新时代，还能涨"}],
+   def:0,
+   after:"2000-02 标普跌了 45%。止盈的人躲过一劫，持有的人十年才回本。"},
+  {y:2005, slot:"invest2005", title:"2005：房市狂热", text:"全美都在买房。房价一年涨了 10% 以上，中介说'房价永远涨'。",
+   opts:[{label:"买投资房，加杠杆", hint:"租金能覆盖月供，大家都在买"},{label:"不碰，保持清醒", hint:"价格已经很高了"}],
+   def:0, cond:s=>s.house>0,
+   after:"2006-07 房价又涨了 20%，然后 2008 崩盘，跌回 2003 年的水平。"},
+  {y:2008, slot:"crisis2008", title:"2008：金融危机", text:"雷曼兄弟倒闭，市场恐慌蔓延，你的账面资产大幅缩水。",
+   opts:[{label:"割肉离场，保本为上", hint:"保住现金"},{label:"扛住不动", hint:"相信会回来"},{label:"抄底加仓", hint:"别人恐惧我贪婪"}],
+   def:1,
+   after:"2009-2021 标普涨了 7 倍。扛住的人回本又翻倍，抄底的人赚得最多。"},
+  {y:2015, slot:"invest15", title:"2015：复苏期", text:"经济复苏，股市新高。你 68 岁了，怎么配置？",
+   opts:[{label:"转为稳健，保护本金", hint:"临近退休，求稳"},{label:"继续激进", hint:"追求更高回报"}],
+   def:0,
+   after:"2016-2021 标普又翻了一倍，但临近退休的人求稳也没错。"},
+  {y:2020, slot:"covid", title:"2020：疫情", text:"股市 3 月暴跌，失业率飙升。恐慌与机会并存。",
+   opts:[{label:"现金为王，躲一躲", hint:"保住现金，等待稳定"},{label:"逢低买入", hint:"别人恐惧我贪婪"}],
+   def:0,
+   after:"2020 年 3 月是历史性低点，随后两年标普涨了 40%+。"},
+];
+const DEF_INVEST = {invest79:0, invest87:1, invest95:0, exit2000:0, invest15:0, covid:1};
+
+function applyChoice(st, idx, slot){
+  switch(slot){
+    case "marry": if(idx===0) st.married=true; break;
+    case "kid": if(idx===0) st.kid=true; break;
+    case "house1": if(idx===0) buyHouse(st); break;
+    case "invest79":
+      st.invest = idx===0 ? "deposit" : "balanced";
+      break;
+    case "upgrade": if(idx===1 && st.house>0) upgradeHouse(st); break;
+    case "invest87":
+      if(idx===0){ st.invest = st.invest==="deposit" ? "balanced" : "aggressive"; }
+      break;
+    case "invest95": if(idx===0) st.invest = "aggressive"; break;
+    case "exit2000":
+      if(idx===0){ st.cash += st.stock; st.stock = 0; st.invest = "deposit"; }
+      break;
+    case "invest2005": if(idx===0 && st.house>0) buySecond(st); break;
+    case "crisis2008":
+      if(idx===0){ st.cash += st.stock; st.stock = 0; st.invest = "deposit"; }
+      if(idx===2){ st.invest = "aggressive"; }
+      break;
+    case "invest15": if(idx===0) st.invest = "deposit"; break;
+    case "covid":
+      if(idx===0){ st.cash += st.stock*0.6; st.stock *= 0.4; st.invest="deposit"; }
+      if(idx===1) st.invest = "aggressive";
+      break;
+  }
+}
+function buyHouse(st){
+  const price = housePrice(st.year);
+  let dp = price*0.2;
+  if(st.cash < dp){ dp = st.cash; }
+  st.cash -= dp;
+  st.house = price;
+  st.loan = price - dp;
+  st.rate = HIST[st.year].rate;
+}
+function upgradeHouse(st){
+  const oldNet = st.house - st.loan;
+  const newPrice = housePrice(st.year)*1.5;
+  st.cash += oldNet;
+  st.cash -= newPrice*0.2;
+  st.house = newPrice;
+  st.loan = newPrice*0.8;
+  st.rate = HIST[st.year].rate;
+}
+function buySecond(st){
+  const price = housePrice(st.year)*0.9;
+  const dp = price*0.2;
+  if(st.cash < dp) return;
+  st.cash -= dp;
+  st.house2 = price;
+  st.loan2 = price - dp;
+  st.rate2 = HIST[st.year].rate;
+}
+function housePrice(y){
+  // 1969 美国中位房价 $25,600，按真实涨幅滚动
+  let p = 25600;
+  for(let yy=1969; yy<y; yy++) p *= (1 + HIST[yy].house/100);
+  return p;
+}
+function annualPay(loan, rate, yearsLeft){
+  if(loan<=0) return 0;
+  const r = rate/100/12, n = yearsLeft*12;
+  const m = loan*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+  return m*12;
+}
+
+/* ====== 年度推进（历史驱动） ====== */
+function tick(st, deterministic){
+  const y = st.year;
+  const h = HIST[y];
+  st.age++;
+  // 收入：名义 = 上年 ×(1+通胀) ×(1+实际增长)
+  const grow = JOB[st.job].grow + (st.job==="个体经营" ? (Math.random()*0.06-0.03) : 0);
+  st.income *= (1 + h.inf/100) * (1 + grow);
+  if(st.layoffLeft>0){ st.income *= 0.2; st.layoffLeft--; }
+  // 失业（真实失业率驱动）
+  if(!deterministic && Math.random() < h.unemp/100 * 0.6){
+    st.layoffLeft = 1;
+    const msg = `失业了（当年美国失业率 ${h.unemp}%），只拿失业金过了一年`;
+    st.events.push({y, t:msg});
+    showToast(msg, "warn");
+    st.pressure += 15;
+  }
+  const fam = st.married ? st.income*1.6 : st.income;
+  // 支出（美国式：消费率高，储蓄率低）
+  let rate = st.married ? 0.82 : 0.88;
+  if(st.kid) rate = 0.86;
+  if(st.age > 50) rate = 0.84;
+  let exp = fam * rate + (st.kid ? 3000*(1+h.inf/100) : 0);
+  // 房贷
+  let pay = 0;
+  if(st.loan>0){ pay += annualPay(st.loan, st.rate, Math.max(1, 30-(st.year-1975))); st.loan = Math.max(0, st.loan - st.loan/30); }
+  if(st.loan2>0){ pay += annualPay(st.loan2, st.rate2, Math.max(1, 30-(st.year-2005))); st.loan2 = Math.max(0, st.loan2 - st.loan2/30); }
+  // 资产回报
+  const depR = Math.max(1, h.rate - 2); // 存款利率 ≈ 房贷 - 2%
+  st.cash *= (1 + depR/100);
+  st.stock *= (1 + h.stock/100);
+  // 房产增值
+  st.house *= (1 + h.house/100);
+  st.house2 *= (1 + h.house/100);
+  // 结余分配
+  const save = fam - exp - pay;
+  const alloc = {deposit:[1,0], balanced:[0.5,0.5], aggressive:[0.3,0.7]}[st.invest];
+  st.cash += save * alloc[0];
+  st.stock += save * alloc[1];
+  st.hist.push({y, age:st.age, net: st.cash+st.stock+st.house+st.house2-st.loan-st.loan2, inc:fam});
+  st.year++;
+}
+
+/* ====== 主循环 ====== */
+async function play(){
+  let lastLog = "";
+  while(S.year <= 2023){
+    const y = S.year;
+    for(const d of DECISIONS){
+      if(d.y !== y) continue;
+      if(d.cond && !d.cond(S)) continue;
+      const text = typeof d.text==="string" ? d.text.replace("{P}", fmt(housePrice(y))) : d.text;
+      render(`
+        <div class="card">
+          <h2><span class="yb">${y} 年 · ${S.age} 岁</span>${d.title}</h2>
+          ${eraHTML(y)}
+          <div class="desc">${text}</div>
+          ${d.opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="o">${o.label}</span>${o.hint?`<span class="hint">${o.hint}</span>`:""}</button>`).join("")}
+          <div class="note">你只知道过去发生过什么，不知道未来会怎样——历史不会重演，但会押韵。</div>
+        </div>`);
+      const idx = await waitChoice();
+      applyChoice(S, idx, d.slot);
+      S.choiceSeq.push({y, slot:d.slot, idx, label:d.opts[idx].label, opts:d.opts.map(o=>o.label)});
+      if(d.slot==="crisis2008" && idx===2) S.events.push({y, t:"你在恐慌中抄底——赌对了，这是你人生最赚的一笔"});
+    }
+    // 年度日志（每 4 年一屏）
+    tick(S, false);
+    if(S.year % 4 === 0 || S.year >= 2020){
+      const net = S.hist[S.hist.length-1].net;
+      const evs = S.events.splice(0).map(e=>`<div class="ev ${e.t.includes("失业")?"warn":e.t.includes("最赚")?"good":""}">· ${e.t}</div>`).join("");
+      render(`<div class="card" style="padding:10px 14px;"><div class="log">
+        <div class="row"><span class="age">${S.year}年</span><span>${S.age}岁 ｜ 家庭收入 ${fmt(S.income*(S.married?1.6:1))} ｜ 净资产 ${fmt(net)} ${net<0?"<span style='color:var(--red)'>⚠️ 负债</span>":""}</span></div>${evs}</div></div>`);
+      lastLog = S.year;
+    }
+  }
+  await screenResult();
+}
+
+/* 确定性跑到 2023（预览/复盘用）；choiceMap: slot→idx 覆盖默认选择 */
+function simToEnd(st, choiceMap){
+  while(st.year <= 2023){
+    for(const d of DECISIONS){
+      if(d.y !== st.year) continue;
+      if(d.cond && !d.cond(st)) continue;
+      const idx = (choiceMap && choiceMap[d.slot]!==undefined) ? choiceMap[d.slot]
+        : (DEF_INVEST[d.slot]!==undefined ? DEF_INVEST[d.slot] : d.def);
+      applyChoice(st, idx, d.slot);
+    }
+    tick(st, true);
+  }
+}
+
+/* 事件即时弹窗 */
+function showToast(text, cls){
+  const t = document.createElement("div");
+  t.className = "toast " + (cls||"");
+  t.textContent = (cls==="warn" ? "⚠️ " : "✨ ") + text;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 4000);
+}
+
+/* ====== 结算 ====== */
+function pctVsReal(q, net){
+  const dist = QUANT[q].dist; // 同起点真实家庭 2023 净资产分布（升序）
+  if(!dist || !dist.length) return null;
+  let over = 0;
+  for(const v of dist) if(v <= net) over++;
+  return Math.round(over/dist.length*100);
+}
+function screenResult(){
+  const net = S.cash+S.stock+S.house+S.house2-S.loan-S.loan2;
+  const net24 = net * 1.03; // 2023→2024 CPI 折算
+  const pct = pctVsReal(S.q, net);
+  const q = QUANT[S.q];
+  const diff = net - q.med23;
+  // 反事实复盘（关键 4 节点）
+  const baseSt = replay();
+  const base = baseSt.cash+baseSt.stock+baseSt.house+baseSt.house2-baseSt.loan-baseSt.loan2;
+  const cfRows = [];
+  for(const key of [["house1","1975 买房"],["exit2000","2000 止盈"],["invest2005","2005 投资房"],["crisis2008","2008 金融危机应对"]]){
+    const slot = key[0];
+    const d = S.choiceSeq.find(x=>x.slot===slot);
+    if(!d) continue;
+    const alts = [];
+    for(let j=0;j<d.opts.length;j++){
+      if(j===d.idx) continue;
+      const st = replay({slot, idx:j});
+      const n = st.cash+st.stock+st.house+st.house2-st.loan-st.loan2;
+      alts.push({label:d.opts[j], diff:n-base});
+    }
+    if(alts.length) cfRows.push({label:key[1], mine:d.label, alts});
+  }
+  const cfHTML = cfRows.map(r=>`
+    <div class="cf"><div class="cft">${r.label} —— 你选了「${r.mine}」</div>
+    ${r.alts.map(a=>`<div class="cfr">若「${a.label}」→ <span class="${a.diff>=0?"up":"dn"}">${a.diff>=0?"+":""}${fmt(a.diff)}</span></div>`).join("")}</div>`).join("");
+  // 曲线
+  const rows = [];
+  for(let i=0;i<S.hist.length;i++) if(S.hist[i].y%5===0 || S.hist[i].y===2023) rows.push(S.hist[i]);
+  render(`
+    <div class="card">
+      <h2><span class="yb">2023</span>你的人生结算（${S.age} 岁）</h2>
+      <div class="era"><b>54 年真实历史：</b>你经历了 1970s 大通胀、1981 年 16.6% 房贷、1987 崩盘、2000 泡沫、2008 金融危机、2020 疫情。</div>
+      <div class="center">
+        <div style="font-size:13px;color:var(--sub);">2023 净资产（当年美元）</div>
+        <div class="big-num">${fmt(net)} <small>≈ ${fmt(net24)}（2024美元）</small></div>
+        <div style="font-size:13px;">${pct!=null?`超过了同起点真实家庭中约 <b style="color:var(--red);font-size:19px;">${pct}%</b> 的人`:""}</div>
+        <div class="note">同起点（Q${S.q}）真实家庭 54 年后净资产中位数 ${fmt(q.med23)} —— 你${diff>=0?"高出":"低了"} ${fmt(Math.abs(diff))}</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat"><div class="k">现金/存款</div><div class="v">${fmt(S.cash)}</div></div>
+        <div class="stat"><div class="k">股票/401k</div><div class="v">${fmt(S.stock)}</div></div>
+        <div class="stat"><div class="k">房产净值</div><div class="v">${fmt(S.house+S.house2-S.loan-S.loan2)}</div></div>
+        <div class="stat"><div class="k">退休时月收入(估)</div><div class="v">${fmt(S.income*(S.married?1.6:1)/12)}</div></div>
+        <div class="stat"><div class="k">家庭</div><div class="v" style="font-size:14px;">${S.married?"已婚":"单身"}${S.kid?" · 有孩子":""}</div></div>
+        <div class="stat"><div class="k">投资风格</div><div class="v" style="font-size:14px;">${{deposit:"存银行",balanced:"股债平衡",aggressive:"激进炒股"}[S.invest]}</div></div>
+      </div>
+      <canvas id="chart" width="520" height="180"></canvas>
+      <div class="note">▲ 净资产轨迹（1969→2023，当年美元）</div>
+      ${S.events.length?`<div class="fate-list"><h3 style="font-size:14px;">🗂 你经历过的历史风浪（${S.events.length} 件）</h3>
+        ${S.events.map(e=>`<div class="fl ${e.t.includes("失业")?"warn":e.t.includes("最赚")?"good":""}"><span class="ya">${e.y}年</span> · ${e.t}</div>`).join("")}</div>`:""}
+      ${S.choiceSeq.length?`<div class="fate-list"><h3 style="font-size:14px;">📜 历史的回响（事后来看，当年如何）</h3>
+        ${S.choiceSeq.map(d=>{const dd=DECISIONS.find(x=>x.slot===d.slot); return dd&&dd.after?`<div class="fl"><span class="ya">${dd.y}年 · ${dd.title}</span><br>${dd.after}</div>`:"";}).join("")}</div>`:""}
+      ${cfHTML}
+      <div class="cf"><div class="cft">💡 复盘说明</div><div class="cfr">以上为「只改一个选择」的确定性重演（不含失业等运气），真实历史没有后悔药。</div></div>
+      <div class="center" style="margin-top:12px;">
+        <button class="btn btn-primary" onclick="location.reload()">再活一次</button>
+        <button class="btn btn-ghost" onclick="location.href='起点与终点.html'">换起点</button>
+      </div>
+    </div>`);
+  drawChart(rows);
+  window.scrollTo(0,0);
+}
+function replay(override){
+  const st = newState();
+  st.q = S.q; st.edu = S.edu; st.job = S.job;
+  st.income = Math.max(QUANT[S.q].med, 3200) * EDU[S.edu] * JOB[S.job].coef;
+  const map = {};
+  for(const rec of S.choiceSeq) map[rec.slot] = rec.idx;
+  if(override && override.slot) map[override.slot] = override.idx;
+  simToEnd(st, map);
+  return st;
+}
+function drawChart(rows){
+  const c = document.getElementById("chart");
+  if(!c) return;
+  const w=c.width, h=c.height, padL=62, padR=12, padT=14, padB=24;
+  const ctx = c.getContext("2d");
+  const maxV = Math.max(...rows.map(r=>r.net), 1);
+  const minV = Math.min(...rows.map(r=>r.net), 0);
+  const range = Math.max(maxV-minV, 1);
+  ctx.clearRect(0,0,w,h);
+  ctx.strokeStyle="#e5dcc7"; ctx.fillStyle="#8a7d68"; ctx.font="10px serif";
+  for(let i=0;i<=4;i++){
+    const y = padT + i*(h-padT-padB)/4;
+    ctx.beginPath(); ctx.moveTo(padL,y); ctx.lineTo(w-padR,y); ctx.stroke();
+    const v = (maxV - i*range/4)/1000;
+    ctx.fillText(v>=100? (v/1000).toFixed(1)+"M" : v.toFixed(0)+"k", 4, y+3);
+  }
+  const pts = rows.map((r,i)=>[padL + i*(w-padL-padR)/(rows.length-1||1), padT + (1-(r.net-minV)/range)*(h-padT-padB)]);
+  ctx.beginPath(); ctx.strokeStyle="#9e3d32"; ctx.lineWidth=2.5; ctx.lineJoin="round";
+  ctx.moveTo(pts[0][0],pts[0][1]);
+  for(let i=1;i<pts.length;i++) ctx.lineTo(pts[i][0],pts[i][1]);
+  ctx.stroke();
+  const last = pts[pts.length-1];
+  ctx.beginPath(); ctx.arc(last[0],last[1],4,0,Math.PI*2); ctx.fillStyle="#9e3d32"; ctx.fill();
+  ctx.fillStyle="#8a7d68";
+  rows.forEach((r,i)=>ctx.fillText(r.y+"", pts[i][0]-10, h-8));
+}
+screenSetup();
+</script>
+</body>
+</html>
